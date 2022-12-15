@@ -1,16 +1,8 @@
-# This is a sample Python script.
+import pathlib
+from typing import Union, Optional, Callable
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+PathType = Union[str, pathlib.Path]
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+def my_sort(src: PathType, output: Optional[PathType]=None, reverse: bool=False,
+		key: Optional[Callable]=None, nflows: int=1,
+        bsize: Optional[int]=None, type_data: str = 's') -> None:

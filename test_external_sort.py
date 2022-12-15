@@ -5,7 +5,7 @@ import os
 import unittest
 import shutil
 
-from external_sort import external_natural_merge_sort as my_sort  # pylint: disable=E0401
+from external_sort import my_sort  # pylint: disable=E0401
 
 TEST_NUMBER = [
     [],
