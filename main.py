@@ -1,5 +1,6 @@
 import argparse
 import os
+import pathlib
 
 from typing import Union
 
@@ -56,7 +57,7 @@ def get_file(file_path: str = "") -> Union[str, bool]:
 
     if not file_path:
         file_name = input(
-            "Введите имя файла (с расширением), откуда нужно считать строку: ")
+            "Введите имя файла (с расширением): ")
 
     if not os.path.exists(file_path):
         print("Такого файла не существует.")
@@ -84,6 +85,60 @@ def get_files() -> list:
     return lst_files
 
 
+def get_output_file() -> str:
+    """
+    Получение пути выходного файла
+    :return: путь до выходного файла.
+    """
+    result_path = ""
+    output_file_path = input("Введите путь до выходного файла: ")
+
+    while not result_path:
+        if output_file_path[len(output_file_path) - 3::] in ["txt", "csv"]:
+            result_path = output_file_path
+            return result_path
+        else:
+            print("Недопустимое название файла!")
+            output_file_path = input("Введите путь до выходного файла: ")
+
+
+def get_key(lst_files) -> str:
+    """
+    Получение ключа для csv файла
+    :param lst_files: пути до файлов
+    :return: ключ для csv файла (например, номер/наименование столбца)
+    """
+    if lst_files[0][len(lst_files[0]) - 3::] == "csv":
+        key = input("Введите ключ (наименование столбца): ")
+        while not key:
+            print("Ключ пустой")
+            key = input("Введите ключ (наименование столбца): ")
+        return key
+
+    else:
+        return ""
+
+
+def get_reverse() -> bool:
+    """
+    Получение параметра порядка сортировки
+    :return: вариант сортировки
+    """
+
+    choice = input("Сортировка должна быть по неубыванию (False) или по "
+                   "не возрастанию (True): ")
+    while choice not in ["True", "False"]:
+        print("Введено неверное значение. Попробуйте снова.")
+        choice = input("Сортировка должна быть по неубыванию (False) или по "
+                       "не возрастанию (True): ")
+
+    if choice == "True":
+        case_sensitivity = True
+    else:
+        case_sensitivity = False
+
+    return case_sensitivity
+
 def main():
     """Точка входа"""
 
@@ -103,6 +158,9 @@ def main():
 
         if command_numb == "1":
             files = get_files()
+            output_file = get_output_file()
+            key = get_key(files)
+            reverse = get_reverse()
 
         elif command_numb == "2":
             pass
