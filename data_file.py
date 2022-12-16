@@ -18,7 +18,7 @@ class DataFile:
         self.type_of_file = path_to_file[len(path_to_file) - 3::]
         self.key = ""
 
-        self.open_file = None
+        self.file = None
         self.dict_reader = None
 
         self.dict_writer = None
@@ -26,45 +26,61 @@ class DataFile:
         if self.type_of_file == "csv":
             self.key = key
 
+        self.calculate_count_lines()
+
+    def calculate_count_lines(self) -> None:
+        if not self.file:
+            self.open_file('r')
+
+        if self.type_of_file == "txt":
+            for _ in self.file:
+                self.lines += 1
+
+        elif self.type_of_file == "csv":
+            for _ in self.dict_reader:
+                self.lines += 1
+
+        self.close_file()
+
     def check_or_create_file(self) -> None:
         if not os.path.exists(self.path_to_file):
             with open(self.path_to_file, "x", encoding='utf-8') as _:
                 pass
 
     def open_file(self, mode: str = 'r') -> None:
-        if not self.open_file:
+        if not self.file:
             self.close_file()
 
-        self.open_file = open(self.path_to_file, mode, encoding='utf-8')
+        self.file = open(self.path_to_file, mode, encoding='utf-8')
 
         if self.type_of_file == "csv":
             if mode == "r":
-                self.dict_reader = csv.DictReader(self.open_file)
+                self.dict_reader = csv.DictReader(self.file)
 
             elif mode == "a":
-                self.open_file = open(self.path_to_file, mode, newline="",
-                                      encoding='utf-8')
+                self.file = open(self.path_to_file, mode, newline="",
+                                 encoding='utf-8')
                 self.dict_writer = csv.DictWriter(self.path_to_file,
                                                   fieldnames=[self.key],
                                                   )
                 self.dict_writer.writeheader()
 
             elif mode == 'w':
-                self.open_file = open(self.path_to_file, mode, newline='',
-                                      encoding='utf-8')
+                self.file = open(self.path_to_file, mode, newline='',
+                                 encoding='utf-8')
 
                 self.dict_writer = csv.DictWriter(self.path_to_file,
                                                   fieldnames=[self.key])
 
     def close_file(self) -> None:
-        self.open_file.close()
-        self.open_file = None
+        self.file.close()
+        self.file = None
         self.dict_reader = None
         self.dict_writer = None
 
     def write_file(self, data: str) -> None:
         if self.type_of_file == 'txt':
-            self.open_file.write(str(data))
+            self.file.write(str(data))
         elif self.type_of_file == 'csv':
             self.dict_writer.writerow()
 
@@ -74,3 +90,8 @@ class DataFile:
         self.close_file()
 
         self.lines = 0
+
+    def delete(self) -> None:
+        self.close_file()
+        os.remove(self.path_to_file)
+        self.path_to_file = None
