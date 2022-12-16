@@ -1,6 +1,6 @@
 import argparse
 import os
-import pathlib
+import external_sort
 
 from typing import Union
 
@@ -34,10 +34,7 @@ def parse_args() -> Union[bool, str]:
 
     # Проверяем аргументы командной строки
 
-    """
-    sorted_array = sort_visualization(array, args.reverse, args.gif,
-                                      args.visualize)
-    """
+    external_sort.my_sort(args.files, args.output)
 
 
 def menu() -> None:
