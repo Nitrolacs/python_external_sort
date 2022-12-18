@@ -173,8 +173,9 @@ def compare(first: str, second: str, type_data: str) -> int:
     return value
 
 
-def split_original_file(original_file: DataFile, file1: DataFile,
-                        file2: DataFile, reverse: bool):
+def splitting_and_merging(original_file: DataFile, file1: DataFile,
+                          file2: DataFile, output_file: DataFile,
+                          reverse: bool):
     counter_splits = 0
     counter_merges = 0
     counter_more_or_less_split = 0
@@ -193,7 +194,7 @@ def split_original_file(original_file: DataFile, file1: DataFile,
         str1 = original_file.read_file()
 
         file1.write_file(str1)
-        # write_to_active_file(active_file, num, file1, file2)
+
         str2 = str1
         while str1 is not None:
 
@@ -227,76 +228,77 @@ def split_original_file(original_file: DataFile, file1: DataFile,
 
         counter_splits += 1
 
+        file1.close_file()
+        file2.close_file()
+        original_file.close_file()
 
-        f1.close()
-        f2.close()
-        original_file.close()
-        
-        
-        #merging
-        with open(f_name, "w") as original_file, open(f1_name, "r") as f1, open(f2_name,
-                                                                    "r") as f2:
-            num_f1 = read_int(f1)
-            num_f2 = read_int(f2)
+        output_file.open_file('w')
+        file1.open_file('r')
+        file2.open_file('r')
 
-            while num_f1 is not None and num_f2 is not None:
-                run_f1 = False
-                run_f2 = False
-                while run_f1 is False and run_f2 is False:
-                    if num_f1 <= num_f2:
-                        write_to_main_file(original_file, num_f1)
-                        num_f1 = read_int(f1)
-                        run_f1 = end_of_range(num_f1)
+        # merging
 
-                    else:
-                        write_to_main_file(original_file, num_f2)
-                        num_f2 = read_int(f2)
-                        run_f2 = end_of_range(num_f2)
-                    counter_more_or_less_split += 1
-                while run_f1 is False:
+        str1 = file1.read_file()
+        str2 = file2.read_file()
+
+        while str1 is not None and str2 is not None:
+            run_f1 = False
+            run_f2 = False
+            while run_f1 is False and run_f2 is False:
+                if num_f1 <= num_f2:
                     write_to_main_file(original_file, num_f1)
                     num_f1 = read_int(f1)
                     run_f1 = end_of_range(num_f1)
 
-                while run_f2 is False:
+                else:
                     write_to_main_file(original_file, num_f2)
                     num_f2 = read_int(f2)
                     run_f2 = end_of_range(num_f2)
-
-            run_f1 = False
-            run_f2 = False
-            while num_f1 is not None and run_f1 is False:
+                counter_more_or_less_split += 1
+            while run_f1 is False:
                 write_to_main_file(original_file, num_f1)
                 num_f1 = read_int(f1)
+                run_f1 = end_of_range(num_f1)
 
-            while num_f2 is not None and run_f2 is False:
+            while run_f2 is False:
                 write_to_main_file(original_file, num_f2)
                 num_f2 = read_int(f2)
+                run_f2 = end_of_range(num_f2)
+
+        run_f1 = False
+        run_f2 = False
+        while num_f1 is not None and run_f1 is False:
+            write_to_main_file(original_file, num_f1)
+            num_f1 = read_int(f1)
+
+        while num_f2 is not None and run_f2 is False:
+            write_to_main_file(original_file, num_f2)
+            num_f2 = read_int(f2)
 
         counter_merges += 1
         original_file.close()
         f1.close()
         f2.close()
-        """
 
 
 def my_sort(src: PathTypeList, output: Optional[str] = None,
             reverse: bool = False,
             key: str = "", type_data: str = 's') -> None:
-    """
-    if output:
-        output = DataFile(output, key, type_data)
-        src = write_output_file(src, output, key, type_data)
-    """
-
     original_file = DataFile(src[0], key, type_data)
     file1 = DataFile("file1.txt", key, type_data)
     file2 = DataFile("file2.txt", key, type_data)
-    split_original_file(original_file, file1, file2, reverse)
+
+    if output:
+        output = DataFile(output, key, type_data)
+        # src = write_output_file(src, output, key, type_data)
+    else:
+        output = original_file
+
+    splitting_and_merging(original_file, file1, file2, output, reverse)
     """
     if original_file.lines > 1:
         while not sort_check(original_file, reverse):
-            split_original_file(original_file, file1, file2, reverse)
+            splitting_and_merging(original_file, file1, file2, output, reverse)
 
     file1.delete()
     file2.delete()
