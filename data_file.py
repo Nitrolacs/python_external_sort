@@ -1,6 +1,7 @@
 """Реализация класса файла"""
 import csv
 import os.path
+from typing import Union
 
 
 class DataFile:
@@ -19,9 +20,8 @@ class DataFile:
         self.key = ""
 
         self.file = None
-        self.dict_reader = None
-
-        self.dict_writer = None
+        self.reader = None
+        self.writer = None
 
         if self.type_of_file == "csv":
             self.key = key
@@ -37,7 +37,7 @@ class DataFile:
                 self.lines += 1
 
         elif self.type_of_file == "csv":
-            for _ in self.dict_reader:
+            for _ in self.reader:
                 self.lines += 1
 
         self.close_file()
@@ -55,22 +55,22 @@ class DataFile:
 
         if self.type_of_file == "csv":
             if mode == "r":
-                self.dict_reader = csv.DictReader(self.file)
+                self.reader = csv.DictReader(self.file)
 
             elif mode == "a":
                 self.file = open(self.path_to_file, mode, newline="",
                                  encoding='utf-8')
-                self.dict_writer = csv.DictWriter(self.path_to_file,
-                                                  fieldnames=[self.key],
-                                                  )
-                self.dict_writer.writeheader()
+                self.writer = csv.DictWriter(self.file,
+                                             fieldnames=[self.key],
+                                             )
+                self.writer.writeheader()
 
             elif mode == 'w':
                 self.file = open(self.path_to_file, mode, newline='',
                                  encoding='utf-8')
 
-                self.dict_writer = csv.DictWriter(self.path_to_file,
-                                                  fieldnames=[self.key])
+                self.writer = csv.DictWriter(self.file,
+                                             fieldnames=[self.key])
 
     def read_file(self) -> str:
         if self.file is None:
@@ -84,7 +84,7 @@ class DataFile:
 
         if self.type_of_file == "csv":
             try:
-                return next(self.dict_reader)[self.key]
+                return next(self.reader)[self.key]
             except StopIteration:
                 return ''
 
@@ -92,14 +92,28 @@ class DataFile:
         if self.file is not None:
             self.file.close()
             self.file = None
-            self.dict_reader = None
-            self.dict_writer = None
+            self.reader = None
+            self.writer = None
+
+    def transform_item(self, item: str) -> Union[str, int, float]:
+        """Метод для преобразования элемента при записи в csv файл"""
+        if self.type_data == 'i':
+            item = int(item)
+        elif self.type_data == 's':
+            item = str(item).replace('\n', '')
+        elif self.type_data == 'f':
+            item = float(item)
+
+        return item
 
     def write_file(self, data: str) -> None:
         if self.type_of_file == 'txt':
             self.file.write(str(data))
         elif self.type_of_file == 'csv':
-            self.dict_writer.writerow()
+            if data:
+                self.writer.writerow(
+                    {self.key: self.transform_item(data)},
+                )
 
     def clean(self) -> None:
         self.open_file('w')

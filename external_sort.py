@@ -185,6 +185,8 @@ def splitting_file(output_file: DataFile, file1: DataFile,
     active_file = file1
     str1 = output_file.read_file()
 
+    str1 = str1 + "\n" if "\n" not in str1 else str1
+
     number_of_sequences = 1
 
     file1.write_file(str1)
