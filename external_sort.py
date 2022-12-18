@@ -1,4 +1,5 @@
 import pathlib
+import os
 
 from typing import Union, Optional
 
@@ -122,8 +123,8 @@ def write_to_main_file(f, num):
     f.write(str(num) + "\n")
 
 
-def end_of_range(num):
-    if num is None:
+def end_of_range(value):
+    if value == "`":
         return True
     else:
         return False
@@ -173,112 +174,114 @@ def compare(first: str, second: str, type_data: str) -> int:
     return value
 
 
-def splitting_and_merging(original_file: DataFile, file1: DataFile,
-                          file2: DataFile, output_file: DataFile,
-                          reverse: bool):
-    counter_splits = 0
-    counter_merges = 0
-    counter_more_or_less_split = 0
-
-    str1, str2 = '', ''
-
-    original_file.open_file('r')
+def splitting_file(output_file: DataFile, file1: DataFile,
+                   file2: DataFile, reverse: bool):
+    output_file.open_file('r')
     file1.clean()
     file1.open_file('a')
     file2.clean()
     file2.open_file('a')
 
-    while True:
-        active_file = file1
+    active_file = file1
+    str1 = output_file.read_file()
 
-        str1 = original_file.read_file()
+    number_of_sequences = 1
 
-        file1.write_file(str1)
+    file1.write_file(str1)
 
-        str2 = str1
-        while str1 is not None:
+    str2 = str1
+    while str1 is not None:
 
-            str1 = original_file.read_file()
+        str1 = output_file.read_file()
 
-            if len(str1) == 0:
-                break
-
-            counter_more_or_less_split += 1
-
-            compare_result = compare(str2, str1, original_file.type_data)
-
-            str1 = str1 + "\n" if "\n" not in str1 else str1
-
-            if reverse:
-                if compare_result in [1, 0]:
-                    file1.write_file(str1)
-                elif compare_result == -1:
-                    file2.write_file(str1)
-            else:
-                if compare_result in [-1, 0]:
-                    active_file.write_file(str1)
-                elif compare_result == 1:
-                    active_file = file2 if active_file == file1 else file1
-                    active_file.write_file(str1)
-
-            str2 = str1
-
-        if file2.lines == 0:
+        if len(str1) == 0:
             break
 
-        counter_splits += 1
+        compare_result = compare(str2, str1, output_file.type_data)
 
-        file1.close_file()
-        file2.close_file()
-        original_file.close_file()
+        str1 = str1 + "\n" if "\n" not in str1 else str1
 
-        output_file.open_file('w')
-        file1.open_file('r')
-        file2.open_file('r')
+        if reverse:
+            if compare_result in [1, 0]:
+                active_file.write_file(str1)
+            elif compare_result == -1:
+                number_of_sequences += 1
+                active_file = file2 if active_file == file1 else file1
+                if number_of_sequences > 2:
+                    active_file.write_file("`\n")
+                active_file.write_file(str1)
 
-        # merging
+        else:
+            if compare_result in [-1, 0]:
+                active_file.write_file(str1)
+            elif compare_result == 1:
+                number_of_sequences += 1
+                active_file = file2 if active_file == file1 else file1
+                if number_of_sequences > 2:
+                    active_file.write_file("`\n")
+                active_file.write_file(str1)
 
-        str1 = file1.read_file()
-        str2 = file2.read_file()
+        str2 = str1
 
-        while str1 is not None and str2 is not None:
-            run_f1 = False
-            run_f2 = False
-            while run_f1 is False and run_f2 is False:
-                if num_f1 <= num_f2:
-                    write_to_main_file(original_file, num_f1)
-                    num_f1 = read_int(f1)
-                    run_f1 = end_of_range(num_f1)
+    file1.close_file()
+    file2.close_file()
+    output_file.close_file()
 
-                else:
-                    write_to_main_file(original_file, num_f2)
-                    num_f2 = read_int(f2)
-                    run_f2 = end_of_range(num_f2)
-                counter_more_or_less_split += 1
-            while run_f1 is False:
-                write_to_main_file(original_file, num_f1)
-                num_f1 = read_int(f1)
-                run_f1 = end_of_range(num_f1)
 
-            while run_f2 is False:
-                write_to_main_file(original_file, num_f2)
-                num_f2 = read_int(f2)
-                run_f2 = end_of_range(num_f2)
+def merging_files(output_file: DataFile, file1: DataFile,
+                  file2: DataFile, reverse: bool):
+    output_file.open_file('w')
+    file1.open_file('r')
+    file2.open_file('r')
+
+    # merging
+
+    str1 = file1.read_file()
+    str2 = file2.read_file()
+
+    while str1 is not None and str2 is not None:
 
         run_f1 = False
         run_f2 = False
-        while num_f1 is not None and run_f1 is False:
-            write_to_main_file(original_file, num_f1)
-            num_f1 = read_int(f1)
 
-        while num_f2 is not None and run_f2 is False:
-            write_to_main_file(original_file, num_f2)
-            num_f2 = read_int(f2)
+        while run_f1 is False and run_f2 is False:
 
-        counter_merges += 1
-        original_file.close()
-        f1.close()
-        f2.close()
+            compare_result = compare(str1, str2, output_file.type_data)
+
+            if compare_result in [-1, 0]:
+                output_file.write_file(str1)
+                str1 = file1.read_file()
+                run_f1 = end_of_range(str1)
+
+            else:
+                output_file.write_file(str2)
+                str2 = file2.read_file()
+                run_f2 = end_of_range(str2)
+
+        while run_f1 is False:
+            output_file.write_file(str1)
+            str1 = file1.read_file()
+            run_f1 = end_of_range(str1)
+
+        while run_f2 is False:
+            output_file.write_file(str2)
+            str2 = file2.read_file()
+            run_f2 = end_of_range(str2)
+
+    run_f1 = False
+    run_f2 = False
+
+    while str1 is not None and run_f1 is False:
+        output_file.write_file(str1)
+        str1 = file1.read_file()
+
+    while str2 is not None and run_f2 is False:
+        output_file.write_file(str2)
+        str2 = file2.read_file()
+
+    file1.close_file()
+    file2.close_file()
+    output_file.close_file()
 
 
 def my_sort(src: PathTypeList, output: Optional[str] = None,
@@ -294,12 +297,24 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
     else:
         output = original_file
 
-    splitting_and_merging(original_file, file1, file2, output, reverse)
-    """
+    index = 0
+
     if original_file.lines > 1:
         while not sort_check(original_file, reverse):
-            splitting_and_merging(original_file, file1, file2, output, reverse)
+            index += 1
 
+            if index == 1:
+                splitting_file(original_file, file1, file2, reverse)
+            else:
+                splitting_file(output, file1, file2, reverse)
+
+            if os.stat(file2.path_to_file).st_size == 0:
+                break
+
+            merging_files(output, file1, file2, reverse)
+
+
+    """
     file1.delete()
     file2.delete()
     """

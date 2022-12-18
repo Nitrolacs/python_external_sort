@@ -180,7 +180,9 @@ def main():
             type_data = get_type_data()
 
         elif command_numb == "2":
+            print("Внешняя сортировка начата...")
             external_sort.my_sort(files, output_file, reverse, key, type_data)
+            print("Внешняя сортировка закончена")
 
         elif command_numb == "3":
             print("Завершение программы...")
