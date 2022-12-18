@@ -88,15 +88,18 @@ def get_output_file() -> str:
     :return: путь до выходного файла.
     """
     result_path = ""
-    output_file_path = input("Введите путь до выходного файла: ")
+    output_file_path = input(
+        "Введите путь до выходного файла (нажмите Enter для остановки): ")
 
-    while not result_path:
+    while output_file_path != "":
         if output_file_path[len(output_file_path) - 3::] in ["txt", "csv"]:
             result_path = output_file_path
             return result_path
         else:
             print("Недопустимое название файла!")
-            output_file_path = input("Введите путь до выходного файла: ")
+            output_file_path = input(
+                "Введите путь до выходного файла (нажмите "
+                "Enter для остановки): ")
 
 
 def get_key(lst_files) -> str:
@@ -182,6 +185,7 @@ def main():
         elif command_numb == "2":
             print("Внешняя сортировка начата...")
             external_sort.my_sort(files, output_file, reverse, key, type_data)
+
             print("Внешняя сортировка закончена")
 
         elif command_numb == "3":

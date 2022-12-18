@@ -289,16 +289,15 @@ def merging_files(output_file: DataFile, file1: DataFile,
     output_file.close_file()
 
 
-def my_sort(src: PathTypeList, output: Optional[str] = None,
-            reverse: bool = False,
-            key: str = "", type_data: str = 's') -> None:
+def start_external_sort(src: PathTypeList, output: Optional[str] = None,
+                        reverse: bool = False,
+                        key: str = "", type_data: str = 's') -> None:
     original_file = DataFile(src[0], key, type_data)
     file1 = DataFile("file1.txt", key, type_data)
     file2 = DataFile("file2.txt", key, type_data)
 
     if output:
         output = DataFile(output, key, type_data)
-        # src = write_output_file(src, output, key, type_data)
     else:
         output = original_file
 
@@ -320,3 +319,10 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
 
     file1.delete()
     file2.delete()
+
+
+def my_sort(src: PathTypeList, output: Optional[str] = None,
+            reverse: bool = False,
+            key: str = "", type_data: str = 's') -> None:
+    for index in range(len(src)):
+        start_external_sort([src[index]], output, reverse, key, type_data)
