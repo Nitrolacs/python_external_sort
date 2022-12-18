@@ -123,11 +123,11 @@ def get_reverse() -> bool:
     """
 
     choice = input("Сортировка должна быть по неубыванию (False) или по "
-                   "не возрастанию (True): ")
+                   "невозрастанию (True): ")
     while choice not in ["True", "False"]:
         print("Введено неверное значение. Попробуйте снова.")
         choice = input("Сортировка должна быть по неубыванию (False) или по "
-                       "не возрастанию (True): ")
+                       "невозрастанию (True): ")
 
     if choice == "True":
         reverse = True

@@ -239,6 +239,11 @@ def merging_files(output_file: DataFile, file1: DataFile,
     str1 = file1.read_file()
     str2 = file2.read_file()
 
+    if reverse:
+        values_list = [1, 0]
+    else:
+        values_list = [-1, 0]
+
     while str1 != '' and str2 != '':
 
         run_f1 = False
@@ -248,7 +253,7 @@ def merging_files(output_file: DataFile, file1: DataFile,
 
             compare_result = compare(str1, str2, output_file.type_data)
 
-            if compare_result in [-1, 0]:
+            if compare_result in values_list:
                 output_file.write_file(str1)
                 str1 = file1.read_file()
                 run_f1 = end_of_range(str1)
