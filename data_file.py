@@ -70,7 +70,8 @@ class DataFile:
                                  encoding='utf-8')
 
                 self.writer = csv.DictWriter(self.file,
-                                             fieldnames=[self.key])
+                                             fieldnames=[self.key],
+                                             )
 
     def read_file(self) -> str:
         if self.file is None:
