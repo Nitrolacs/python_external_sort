@@ -124,7 +124,7 @@ def write_to_main_file(f, num):
 
 
 def end_of_range(value):
-    if value == "`":
+    if value == "`\n" or value == '':
         return True
     else:
         return False
@@ -239,7 +239,7 @@ def merging_files(output_file: DataFile, file1: DataFile,
     str1 = file1.read_file()
     str2 = file2.read_file()
 
-    while str1 is not None and str2 is not None:
+    while str1 != '' and str2 != '':
 
         run_f1 = False
         run_f2 = False
@@ -268,14 +268,14 @@ def merging_files(output_file: DataFile, file1: DataFile,
             str2 = file2.read_file()
             run_f2 = end_of_range(str2)
 
-    run_f1 = False
-    run_f2 = False
+        str1 = file1.read_file()
+        str2 = file2.read_file()
 
-    while str1 is not None and run_f1 is False:
+    while str1 != "":
         output_file.write_file(str1)
         str1 = file1.read_file()
 
-    while str2 is not None and run_f2 is False:
+    while str2 != "":
         output_file.write_file(str2)
         str2 = file2.read_file()
 
@@ -313,8 +313,5 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
 
             merging_files(output, file1, file2, reverse)
 
-
-    """
     file1.delete()
     file2.delete()
-    """
