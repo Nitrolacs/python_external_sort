@@ -289,40 +289,38 @@ def merging_files(output_file: DataFile, file1: DataFile,
     output_file.close_file()
 
 
-def start_external_sort(src: PathTypeList, output: Optional[str] = None,
-                        reverse: bool = False,
-                        key: str = "", type_data: str = 's') -> None:
-    original_file = DataFile(src[0], key, type_data)
-    file1 = DataFile("file1.txt", key, type_data)
-    file2 = DataFile("file2.txt", key, type_data)
-
-    if output:
-        output = DataFile(output, key, type_data)
-    else:
-        output = original_file
-
-    index = 0
-
-    if original_file.lines > 1:
-        while not sort_check(original_file, reverse):
-            index += 1
-
-            if index == 1:
-                splitting_file(original_file, file1, file2, reverse)
-            else:
-                splitting_file(output, file1, file2, reverse)
-
-            if os.stat(file2.path_to_file).st_size == 0:
-                break
-
-            merging_files(output, file1, file2, reverse)
-
-    file1.delete()
-    file2.delete()
-
-
 def my_sort(src: PathTypeList, output: Optional[str] = None,
             reverse: bool = False,
             key: str = "", type_data: str = 's') -> None:
+
+    output_file = None
+
+    if output:
+        output_file = DataFile(output, key, type_data)
+
     for index in range(len(src)):
-        start_external_sort([src[index]], output, reverse, key, type_data)
+        original_file = DataFile(src[index], key, type_data)
+        file1 = DataFile("file1.txt", key, type_data)
+        file2 = DataFile("file2.txt", key, type_data)
+
+        if not output:
+            output_file = original_file
+
+        index = 0
+
+        if original_file.lines > 1:
+            while not sort_check(original_file, reverse):
+                index += 1
+
+                if index == 1:
+                    splitting_file(original_file, file1, file2, reverse)
+                else:
+                    splitting_file(output_file, file1, file2, reverse)
+
+                if os.stat(file2.path_to_file).st_size == 0:
+                    break
+
+                merging_files(output_file, file1, file2, reverse)
+
+        file1.delete()
+        file2.delete()
