@@ -13,7 +13,7 @@ class DataFile:
 
         self.check_or_create_file()
 
-        self.data_type = type_data
+        self.type_data = type_data
         self.lines = 0
         self.type_of_file = path_to_file[len(path_to_file) - 3::]
         self.key = ""
@@ -72,11 +72,28 @@ class DataFile:
                 self.dict_writer = csv.DictWriter(self.path_to_file,
                                                   fieldnames=[self.key])
 
+    def read_file(self) -> str:
+        if self.file is None:
+            self.open_file('r')
+
+        if self.type_of_file == "txt":
+            try:
+                return self.file.readline()
+            except StopIteration:
+                return ''
+
+        if self.type_of_file == "csv":
+            try:
+                return next(self.dict_reader)[self.key]
+            except StopIteration:
+                return ''
+
     def close_file(self) -> None:
-        self.file.close()
-        self.file = None
-        self.dict_reader = None
-        self.dict_writer = None
+        if self.file is not None:
+            self.file.close()
+            self.file = None
+            self.dict_reader = None
+            self.dict_writer = None
 
     def write_file(self, data: str) -> None:
         if self.type_of_file == 'txt':

@@ -130,11 +130,29 @@ def get_reverse() -> bool:
                        "не возрастанию (True): ")
 
     if choice == "True":
-        case_sensitivity = True
+        reverse = True
     else:
-        case_sensitivity = False
+        reverse = False
 
-    return case_sensitivity
+    return reverse
+
+
+def get_type_data() -> str:
+    type_data = "s"
+
+    type_list = input("Введите тип данных элементов списка: s (string), "
+                      "i (int), f (float) или Enter, чтобы выйти: ")
+
+    while type_list not in ("s", "i", "f", ""):
+        print("Введено неверное значение. Попробуйте снова.")
+        type_list = input("Введите тип данных элементов списка: s (string), "
+                          "i (int), f (float) или Enter, чтобы выйти: ")
+
+    if type_list != "exit":
+        type_data = type_list
+
+    return type_data
+
 
 def main():
     """Точка входа"""
@@ -145,6 +163,7 @@ def main():
     files = []
     key = ''
     output_file = ''
+    type_data = 's'
     reverse = False
 
     if_parse = parse_args()
@@ -158,9 +177,10 @@ def main():
             output_file = get_output_file()
             key = get_key(files)
             reverse = get_reverse()
+            type_data = get_type_data()
 
         elif command_numb == "2":
-            pass
+            external_sort.my_sort(files, output_file, reverse, key, type_data)
 
         elif command_numb == "3":
             print("Завершение программы...")
