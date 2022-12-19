@@ -72,6 +72,8 @@ class DataFile:
                 self.writer = csv.DictWriter(self.file,
                                              fieldnames=[self.key],
                                              )
+                self.writer.writeheader()
+
 
     def read_file(self) -> str:
         if self.file is None:
