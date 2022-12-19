@@ -230,6 +230,26 @@ def splitting_file(output_file: DataFile, file1: DataFile,
     output_file.close_file()
 
 
+def combine_files(src: PathTypeList, output: Optional[str] = None,
+                  type_data: str = "s"):
+    common_file = DataFile(output, "", type_data)
+
+    common_file.open_file('w')
+
+    for index in range(len(src)):
+        tmp_file = DataFile(src[index], "", type_data)
+        tmp_file.open_file("r")
+        for _ in range(tmp_file.lines):
+            str1 = tmp_file.read_file()
+            str1 = str1 + "\n" if "\n" not in str1 else str1
+            common_file.write_file(str1)
+        tmp_file.close_file()
+
+    common_file.close_file()
+
+    return common_file.path_to_file
+
+
 def merging_files(output_file: DataFile, file1: DataFile,
                   file2: DataFile, reverse: bool):
     output_file.open_file('w')
@@ -294,11 +314,14 @@ def merging_files(output_file: DataFile, file1: DataFile,
 def my_sort(src: PathTypeList, output: Optional[str] = None,
             reverse: bool = False,
             key: str = "", type_data: str = 's') -> None:
-
     output_file = None
 
     if output:
         output_file = DataFile(output, key, type_data)
+
+    if output and len(src) != 1:
+        src = [combine_files(src, output, type_data)]
+        output = ""
 
     for index in range(len(src)):
         original_file = DataFile(src[index], key, type_data)
