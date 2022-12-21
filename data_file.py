@@ -61,9 +61,10 @@ class DataFile:
             with open(self.path_to_file, "x", encoding='utf-8') as _:
                 pass
 
-    def open_file(self, mode: str = 'r') -> None:
+    def open_file(self, mode: str = 'r', keys: list = []) -> None:
         """
         Открытие файла
+        :param keys: список названий заголовков файла
         :param mode: режим открытия
         :return: None
         """
@@ -76,21 +77,20 @@ class DataFile:
             if mode == "r":
                 self.reader = csv.DictReader(self.file)
 
-            elif mode == "a":
-                self.file = open(self.path_to_file, mode, newline="",
-                                 encoding='utf-8')
-                self.writer = csv.DictWriter(self.file,
-                                             fieldnames=[self.key],
-                                             )
-                self.writer.writeheader()
-
             elif mode == 'w':
+                # self.file = open(self.path_to_file, "r", encoding='utf-8')
                 self.file = open(self.path_to_file, mode, newline='',
                                  encoding='utf-8')
 
-                self.writer = csv.DictWriter(self.file,
-                                             fieldnames=[self.key],
-                                             )
+                if not keys:
+                    self.writer = csv.DictWriter(self.file,
+                                                 fieldnames=[self.key],
+                                                 )
+                else:
+                    self.writer = csv.DictWriter(self.file,
+                                                 fieldnames=keys,
+                                                 )
+
                 self.writer.writeheader()
 
     def read_file(self) -> str:

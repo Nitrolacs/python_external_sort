@@ -172,16 +172,49 @@ def combine_files(src: PathTypeList, output: Optional[str] = None,
 
 
 def merging_files(output_file: DataFile, file1: DataFile,
-                  file2: DataFile, reverse: bool) -> None:
+                  file2: DataFile, reverse: bool, is_output: bool) -> None:
     """
     Слияние файлов
     :param output_file: исходный файл
     :param file1: файл1
     :param file2: файл2
     :param reverse: флаг сортировки
+    :param is_output: есть ли выходной файл
     :return: None
     """
-    output_file.open_file('w')
+
+    if output_file.type_of_file == "csv" and not is_output:
+        backup_file = DataFile(output_file.path_to_file[:-4] + "_backup." +
+                               output_file.type_of_file,
+                               "w", output_file.type_data)
+
+        output_file.open_file("r")
+
+        keys = dict(list(output_file.reader)[0])
+
+        backup_file.open_file("w", list(keys))
+
+        output_file.close_file()
+        output_file.open_file("r")
+
+        for row in output_file.reader:
+            row[output_file.key] = ''
+            backup_file.writer.writerow(row)
+
+        output_file.close_file()
+        backup_file.close_file()
+
+        backup_file.open_file("r")
+        output_file.open_file('w', list(keys))
+
+        for row in backup_file.reader:
+            output_file.writer.writerow(row)
+
+        backup_file.delete()
+
+    else:
+        output_file.open_file('w')
+
     file1.open_file('r')
     file2.open_file('r')
 
@@ -283,7 +316,7 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
                 if os.stat(file2.path_to_file).st_size == 0:
                     break
 
-                merging_files(output_file, file1, file2, reverse)
+                merging_files(output_file, file1, file2, reverse, bool(output))
 
         file1.delete()
         file2.delete()
