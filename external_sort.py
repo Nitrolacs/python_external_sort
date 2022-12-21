@@ -257,6 +257,7 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
     """
     output_file = None
     backup_file = None
+    keys = []
 
     if output:
         output_file = DataFile(output, key, type_data)
@@ -317,15 +318,23 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
 
                 merging_files(output_file, file1, file2, reverse, bool(output))
 
-        """
-        backup_file.open_file("r")
-        output_file.open_file('w', list(keys))
+        if output_file.type_of_file == "csv" and not output and len(keys) > 1:
 
-        for row in backup_file.reader:
-            output_file.writer.writerow(row)
-        """
+            output_file.open_file("r")
+            result = []
 
-        if backup_file is DataFile:
+            for row in output_file.reader:
+                result.append(row[key])
+
+            output_file.close_file()
+            output_file.open_file("w", list(keys))
+            backup_file.open_file("r")
+
+            for tmp_index, row in enumerate(backup_file.reader):
+                row[key] = result[tmp_index]
+                output_file.writer.writerow(row)
+
+            output_file.close_file()
             backup_file.delete()
 
         file1.delete()
