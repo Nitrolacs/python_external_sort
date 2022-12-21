@@ -1,3 +1,7 @@
+"""
+Основная программа
+"""
+
 import argparse
 import os
 import external_sort
@@ -141,6 +145,7 @@ def get_reverse() -> bool:
 
 
 def get_type_data() -> str:
+    """Получение типа значений файла"""
     type_data = "s"
 
     type_list = input("Введите тип данных элементов списка: s (string), "

@@ -1,3 +1,5 @@
+"""Модуль внешней естественной сортировки"""
+
 import pathlib
 import os
 
@@ -9,121 +11,12 @@ PathTypeList = Union[list, pathlib.Path]
 PathType = Union[DataFile, pathlib.Path]
 
 
-def copy_in_file(file: DataFile, output_file: DataFile, last: str):
-    output_file.open_file("r")
-    count_lines = 0
-
-
-def sort_check(main_file: DataFile, reverse: bool) -> bool:
-    """Функция проверки отсортированности файла"""
-    sort = True
-    main_file.open_file('r')
-    count_str1, count_str2 = 0, 0
-    str1, str2 = '', ''
-    while not valid_item(str(str1), main_file.type_data):
-        str1 = main_file.read_file()
-    count_str1 += 1
-
-    while not valid_item(str(str2), main_file.type_data):
-        str2 = main_file.read_file()
-
-    while (count_str1 + count_str2) < main_file.lines:
-        if (
-                compare(str1, str2, main_file.type_data) not in
-                ((1 if reverse else -1), 0)
-        ):
-            sort = False
-            break
-
-        count_str2 += 1
-        str1 = str2
-        str2 = main_file.read_file()
-        while not valid_item(str(str2), main_file.type_data):
-            str2 = main_file.read_file()
-            if (count_str1 + count_str2) == main_file.lines:
-                break
-    main_file.close_file()
-    return sort
-
-
-def write_output_file(src: PathTypeList, output: DataFile, key: str,
-                      type_data: str) -> PathType:
-    output.clean()
-
-    output.open_file('a')
-
-    last = ''
-
-    for file in src:
-        output_file = DataFile(file, key, type_data)
-        # output, last = copy_in_file(output, output_file, last)
-
-    output.close_file()
-    return output
-
-
-def file_len(fname):
-    i = -1
-    with open(fname) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
-
-
-def copy_to_another_and_split(from_this, to_this):
-    """
-    delete all comas and rewrite it to a new file
-    """
-    copy_from = open(from_this, "r")
-    copy_to = open(to_this, "w")
-    copy_to.truncate()
-    data = copy_from.read().split(',')
-    for i in range(len(data)):
-        copy_to.write(data[i] + '\n')
-    copy_from.close()
-    copy_to.close()
-
-
-def read_int(file):
-    """
-    reads an str from file and convert it to number
-    """
-    num_str = file.readline()
-    if num_str != "`\n" and num_str != '':
-        num = int(num_str.replace("\n", ""))
-        return num
-    return None
-
-
-def swap_active_files(active_file):
-    """
-    function to swap file with to write
-    """
-    if active_file == "f1":
-        active_file = "f2"
-    else:
-        active_file = "f1"
-    return active_file
-
-
-def write_to_active_file(active_file, num, f1, f2):
-    """
-    Writes to active file
-    """
-    if active_file == "f1":
-        f1.write(str(num) + "\n")
-    else:
-        f2.write(str(num) + "\n")
-
-
-def write_to_main_file(f, num):
-    """
-    writing to main exit file
-    """
-    f.write(str(num) + "\n")
-
-
 def end_of_range(value):
+    """
+    Проверка конца серии
+    :param value: символ
+    :return: конец ли это серии
+    """
     if value == "`\n" or value == '':
         return True
     else:
@@ -131,7 +24,12 @@ def end_of_range(value):
 
 
 def valid_item(item: str, type_data: str) -> bool:
-    """Функция проверки считанного значения"""
+    """
+    Функция проверки считанного значения
+    :param item: значение
+    :param type_data: тип значения
+    :return: результат проверки
+    """
     value = None
     if type_data == 'i':
         value = (
@@ -147,7 +45,13 @@ def valid_item(item: str, type_data: str) -> bool:
 
 
 def compare(first: str, second: str, type_data: str) -> int:
-    """Функция сравнения"""
+    """
+    Функция сравнения двух считанных значений
+    :param first: первое значение
+    :param second: второе значение
+    :param type_data: тип значения
+    :return: результат сравнения
+    """
     value = 0
     if type_data == 'i':
         if int(first) < int(second):
@@ -175,7 +79,16 @@ def compare(first: str, second: str, type_data: str) -> int:
 
 
 def splitting_file(output_file: DataFile, file1: DataFile,
-                   file2: DataFile, reverse: bool):
+                   file2: DataFile, reverse: bool) -> None:
+    """
+    Разбиение файла
+    :param output_file: Исходный файл
+    :param file1: файл 1
+    :param file2: файл 2
+    :param reverse: флаг сортировки
+    :return: None
+    """
+
     output_file.open_file('r')
     file1.clean()
     file1.open_file('a')
@@ -231,7 +144,15 @@ def splitting_file(output_file: DataFile, file1: DataFile,
 
 
 def combine_files(src: PathTypeList, output: Optional[str] = None,
-                  type_data: str = "s"):
+                  type_data: str = "s") -> str:
+    """
+    Соединение файлов
+    :param src: исходные файлы
+    :param output: файл для вывода
+    :param type_data: тип значения в исходном файле
+    :return: путь к файлу для вывода
+    """
+
     common_file = DataFile(output, "", type_data)
 
     common_file.open_file('w')
@@ -251,7 +172,15 @@ def combine_files(src: PathTypeList, output: Optional[str] = None,
 
 
 def merging_files(output_file: DataFile, file1: DataFile,
-                  file2: DataFile, reverse: bool):
+                  file2: DataFile, reverse: bool) -> None:
+    """
+    Слияние файлов
+    :param output_file: исходный файл
+    :param file1: файл1
+    :param file2: файл2
+    :param reverse: флаг сортировки
+    :return: None
+    """
     output_file.open_file('w')
     file1.open_file('r')
     file2.open_file('r')
@@ -314,6 +243,15 @@ def merging_files(output_file: DataFile, file1: DataFile,
 def my_sort(src: PathTypeList, output: Optional[str] = None,
             reverse: bool = False,
             key: str = "", type_data: str = 's') -> None:
+    """
+    Основная функция
+    :param src: Пути к исходным файлам
+    :param output: Путь для выходного файла
+    :param reverse: Флаг сортировки
+    :param key: ключ (для csv файлов)
+    :param type_data: тип значений
+    :return: None
+    """
     output_file = None
 
     if output:
@@ -334,7 +272,7 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
         index = 0
 
         if original_file.lines > 1:
-            while not sort_check(original_file, reverse):
+            while True:
                 index += 1
 
                 if index == 1:
