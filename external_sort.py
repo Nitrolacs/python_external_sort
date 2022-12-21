@@ -183,37 +183,7 @@ def merging_files(output_file: DataFile, file1: DataFile,
     :return: None
     """
 
-    if output_file.type_of_file == "csv" and not is_output:
-        backup_file = DataFile(output_file.path_to_file[:-4] + "_backup." +
-                               output_file.type_of_file,
-                               "w", output_file.type_data)
-
-        output_file.open_file("r")
-
-        keys = dict(list(output_file.reader)[0])
-
-        backup_file.open_file("w", list(keys))
-
-        output_file.close_file()
-        output_file.open_file("r")
-
-        for row in output_file.reader:
-            row[output_file.key] = ''
-            backup_file.writer.writerow(row)
-
-        output_file.close_file()
-        backup_file.close_file()
-
-        backup_file.open_file("r")
-        output_file.open_file('w', list(keys))
-
-        for row in backup_file.reader:
-            output_file.writer.writerow(row)
-
-        backup_file.delete()
-
-    else:
-        output_file.open_file('w')
+    output_file.open_file('w')
 
     file1.open_file('r')
     file2.open_file('r')
@@ -286,6 +256,7 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
     :return: None
     """
     output_file = None
+    backup_file = None
 
     if output:
         output_file = DataFile(output, key, type_data)
@@ -302,6 +273,34 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
         if not output:
             output_file = original_file
 
+        if output_file.type_of_file == "csv" and not output:
+
+            backup_file = DataFile(output_file.path_to_file[:-4] + "_backup." +
+                                   output_file.type_of_file,
+                                   "w", output_file.type_data)
+            output_file.open_file("r")
+
+            try:
+                keys = dict(list(output_file.reader)[0])
+
+                backup_file.open_file("w", list(keys))
+
+                output_file.close_file()
+                output_file.open_file("r")
+
+                for row in output_file.reader:
+                    row[output_file.key] = ''
+                    backup_file.writer.writerow(row)
+
+                output_file.close_file()
+                backup_file.close_file()
+
+            except IndexError:
+                pass
+
+            output_file.close_file()
+            backup_file.close_file()
+
         index = 0
 
         if original_file.lines > 1:
@@ -317,6 +316,17 @@ def my_sort(src: PathTypeList, output: Optional[str] = None,
                     break
 
                 merging_files(output_file, file1, file2, reverse, bool(output))
+
+        """
+        backup_file.open_file("r")
+        output_file.open_file('w', list(keys))
+
+        for row in backup_file.reader:
+            output_file.writer.writerow(row)
+        """
+
+        if backup_file is DataFile:
+            backup_file.delete()
 
         file1.delete()
         file2.delete()
