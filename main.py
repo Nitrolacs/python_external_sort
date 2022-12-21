@@ -23,6 +23,9 @@ def parse_args() -> Union[bool, str]:
     parser.add_argument("-r", "--reverse", dest="reverse", action="store_true",
                         help="Порядок сортировки")
 
+    parser.add_argument("-k", "--key", dest="key", type=str,
+                        help="Ключ для csv файла", required=False)
+
     parser.add_argument("-t", "--type_data", dest="type_data", type=str,
                         help="Тип данных (i (int), f (float), s (string)",
                         default="s")
@@ -38,7 +41,8 @@ def parse_args() -> Union[bool, str]:
 
     # Проверяем аргументы командной строки
 
-    external_sort.my_sort(args.files, args.output)
+    external_sort.my_sort(args.files, args.output, args.reverse, args.key,
+                          args.type_data)
 
 
 def menu() -> None:
